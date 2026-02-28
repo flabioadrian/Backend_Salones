@@ -6,9 +6,9 @@ export const getAllSalones = async () => {
   return rows;
 };
 
-export const createGrupo = async ({ nombre_grupo }) => {
+export const createSalon = async ({ nombre_grupo }) => {
   const [result] = await db.query(
-    'INSERT INTO salones (nombre, capacidad, precio, imagen, descripcion, activo) VALUES (?,?,?,?,?,?)',
+    'INSERT INTO salones (nombre, capacidad, precio, imagen, descripcion, activo) VALUES (?,?,?,?,?, TRUE)',
     [nombre_grupo]
   );
   return { id: result.insertId, nombre_grupo };

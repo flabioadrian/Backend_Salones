@@ -8,10 +8,10 @@ export const getAllServicios = async () => {
   return rows;
 };
 
-export const createAlumno = async (data) => {
+export const createServicio = async (data) => {
   const { matricula, nombre, id_grupo } = data;
   await db.query(
-    'INSERT INTO servicios (nombre, costo, descripcion, activo) VALUES (?, ?, ?, ?)',
+    'INSERT INTO servicios (nombre, costo, descripcion, activo) VALUES (?, ?, ?, TRUE)',
     [matricula, nombre, id_grupo || null]
   );
   return { matricula, nombre, id_grupo };

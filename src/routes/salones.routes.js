@@ -4,7 +4,7 @@ import * as ctrl from '../controllers/salones.controller.js';
 const router = Router();
 
 // Definición de endpoints
-router.get('/', ctrl.getGrupos);
-router.post('/', ctrl.createGrupo);
+router.get('/', ctrl.getSalones);
+router.post('/', ctrl.createSalon);
 
 export default router;

@@ -9,12 +9,12 @@ export const getServicios = async (req, res) => {
   }
 };
 
-export const createAlumno = async (req, res) => {
+export const createServicio = async (req, res) => {
   try {
-    if (!req.body.matricula || !req.body.nombre) {
+    if (!req.body.nombre || !req.body.costo || !req.body.descripcion) {
       return res.status(400).json({ msg: "Faltan datos obligatorios" });
     }
-    const nuevo = await alumnoModel.createAlumno(req.body);
+    const nuevo = await alumnoModel.createServicio(req.body);
     res.status(201).json(nuevo);
   } catch (error) {
     res.status(500).json({ error: error.message });
