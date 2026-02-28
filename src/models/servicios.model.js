@@ -11,7 +11,7 @@ export const getAllServicios = async () => {
 export const createServicio = async (data) => {
   const { matricula, nombre, id_grupo } = data;
   await db.query(
-    'INSERT INTO servicios (nombre, costo, descripcion, activo) VALUES (?, ?, ?, TRUE)',
+    'INSERT INTO servicios (nombre, costo, descripcion) VALUES (?, ?, ?)',
     [matricula, nombre, id_grupo || null]
   );
   return { matricula, nombre, id_grupo };

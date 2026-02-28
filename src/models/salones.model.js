@@ -8,7 +8,7 @@ export const getAllSalones = async () => {
 
 export const createSalon = async ({ nombre_grupo }) => {
   const [result] = await db.query(
-    'INSERT INTO salones (nombre, capacidad, precio, imagen, descripcion, activo) VALUES (?,?,?,?,?, TRUE)',
+    'INSERT INTO salones (nombre, capacidad, precio, imagen, descripcion) VALUES (?,?,?,?,?)',
     [nombre_grupo]
   );
   return { id: result.insertId, nombre_grupo };
