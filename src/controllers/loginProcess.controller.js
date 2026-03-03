@@ -43,3 +43,17 @@ export const logout = (req, res) => {
 
     return res.status(200).json({ message: "Sesión cerrada exitosamente" });
 };
+
+export const verifyToken = async (req, res) => {
+    const { token } = req.cookies;
+    if (!token) return res.status(401).json({ message: "No autorizado" });
+
+    jwt.verify(token, process.env.TOKEN_SECRET || process.env.TOKEN_SECRET_SECONDARY, async (err, user) => {
+        if (err) return res.status(401).json({ message: "No autorizado" });
+
+        return res.json({
+            id: user.id,
+            role: user.role
+        });
+    });
+};
