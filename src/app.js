@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import salonesRoutes from './routes/salones.routes.js';
 import serviciosRoutes from './routes/servicios.routes.js';
+import clienteRoutes from './routes/cliente.routes.js';
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.use(express.json());
 // Montar las rutas en sus respectivos endpoints
 app.use('/api/salones', salonesRoutes);
 app.use('/api/servicios', serviciosRoutes);
+app.use('/api/clientes', clienteRoutes);
 
 // Exportar para Vercel (Serverless)
 export default app;
