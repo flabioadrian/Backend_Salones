@@ -33,14 +33,17 @@ export const alterCliente = async (id, data) => {
 };
 
 export const disableCliente = async (id) => {
-  const [result] = await db.query(
-    'UPDATE cliente SET activo = 0 WHERE id = ?',
+  const [rows] = await db.query(
+    'CALL sp_eliminar_cliente_seguro(?, @p_msg); SELECT @p_msg AS mensaje;',
     [id]
   );
-  if (result.affectedRows === 0) {
-    throw new Error("No se encontró el cliente para desabilitar");
+  const mensajeRespuesta = rows[1][0].mensaje;
+
+  if (mensajeRespuesta.includes('No se puede')) {
+    throw new Error(mensajeRespuesta);
   }
-  return { id, activo: 0 };
+
+  return { id, mensaje: mensajeRespuesta };
 };
 
 export const enableCliente = async (id) => {

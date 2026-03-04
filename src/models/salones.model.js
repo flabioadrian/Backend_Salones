@@ -34,13 +34,15 @@ export const alterSalon = async (id, data) => {
 
 export const disableSalon = async (id) => {
   const [result] = await db.query(
-    'UPDATE salon SET activo = 0 WHERE id = ?',
+    'CALL sp_eliminar_sala_seguro(?, @p_msg); SELECT @p_msg AS mensaje;',
     [id]
   );
-  if (result.affectedRows === 0) {
-    throw new Error("No se encontró el salón para desabilitar");
+  const mensaje = result[1][0].mensaje;
+  if (mensaje.includes('No se puede')) {
+    throw new Error(mensaje);
   }
-  return { id, activo: 0 };
+
+  return { id, mensaje };
 };
 
 export const enableSalon = async (id) => {
