@@ -6,9 +6,11 @@ import { isAdmin } from '../middlewares/validateToken.js';
 
 const router = Router();
 
-router.get('/', authRequired, isAdmin, ctrl.getAdmins);
-router.get('/:id', authRequired, isAdmin, ctrl.getAdminById);
-router.put('/:id', authRequired, isAdmin, ctrl.updateAdmin);
+router.use(authRequired, isAdmin);
+
+router.get('/', ctrl.getAdmins);
+router.get('/:id', ctrl.getAdminById);
+router.put('/:id', ctrl.updateAdmin);
 
 
 export default router;
