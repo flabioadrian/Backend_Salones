@@ -15,10 +15,23 @@ export const getClienteById = async (req, res) => {
     const { id } = req.params;
     if (isNaN(id)) return res.status(400).json({ msg: "El ID debe ser un número válido" });
     
-    const salon = await clienteModel.getClienteById(id);
+    const clientes = await clienteModel.getClienteById(id);
 
-    if(!salon) return res.status(400).json({msg: "Cliente no encontrado"});
-    res.status(200).json(salon); // Éxito
+    if(!clientes) return res.status(400).json({msg: "Cliente no encontrado"});
+    res.status(200).json(clientes); // Éxito
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getInfoClient = async (req, res) => {
+  try {
+    const id = req.user.id;
+    
+    const clientes = await clienteModel.getInfoClient(id);
+
+    if(!clientes) return res.status(400).json({msg: "Cliente no encontrado"});
+    res.status(200).json(clientes); // Éxito
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
