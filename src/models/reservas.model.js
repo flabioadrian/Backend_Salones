@@ -91,8 +91,6 @@ export const alterReserva = async (id, data, userSession) => {
 };
 
 export const cancelReserva = async (id, userSession) => {
-  const { role, userId } = userSession;
-
   await validarUsuarioReserva(id, userSession);
 
   const [result] = await db.query(
