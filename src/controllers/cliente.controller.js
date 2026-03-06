@@ -66,6 +66,21 @@ export const alterCliente = async (req, res) => {
   }
 };
 
+export const alterInfoCliente = async (req, res) => {
+  try {
+    const id = req.user.id;
+    const data = req.body;
+    if (isNaN(id)) return res.status(400).json({ msg: "El ID debe ser un número válido" });
+    if (!data.nombre || !data.aPaterno || !data.aMaterno || !data.telefono || !data.email || !data.password )
+      return res.status(400).json({msg: "Faltan datos obligatorios"});
+
+    const actualizado = await clienteModel.alterCliente(id, data);
+    res.status(200).json(actualizado);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const disableCliente = async (req, res) => {
   try {
     const { id } = req.params;
