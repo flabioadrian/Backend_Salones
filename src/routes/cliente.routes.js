@@ -8,7 +8,7 @@ const router = Router();
 // Definición de endpoints
 router.get('/', authRequired, isAdmin, ctrl.getClientes);
 router.get('/:id', authRequired, isAdmin, ctrl.getClienteById);
-router.get('/info', authRequired, isAdmin, ctrl.getInfoClient);
+router.get('/info', authRequired, ctrl.getInfoClient);
 router.post('/', ctrl.createCliente);
 router.put('/:id', authRequired, ctrl.alterCliente);
 router.patch('/:id/desactivar', authRequired, ctrl.disableCliente);
