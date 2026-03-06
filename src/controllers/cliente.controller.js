@@ -104,3 +104,33 @@ export const enableCliente = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+export const changePasswordClient = async (req, res) => {
+  try {
+    const { pass, new_pass } = req.body;
+    const id = req.user.id;
+
+    if (!pass || !new_pass) return res.status(400).json({ msg: "Error: Ambas contraseñas son requeridas" });
+    if (isNaN(id)) return res.status(400).json({ msg: "El ID debe ser un número válido" });
+
+    const actualizado = await clienteModel.changePassword(id, { pass, new_pass });
+    res.status(200).json(actualizado);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const changePassword = async (req, res) => {
+  try {
+    const { pass, new_pass } = req.body;
+    const { id } = req.params;
+
+    if (!pass || !new_pass) return res.status(400).json({ msg: "Error: Ambas contraseñas son requeridas" });
+    if (isNaN(id)) return res.status(400).json({ msg: "El ID debe ser un número válido" });
+
+    const actualizado = await clienteModel.changePassword(id, { pass, new_pass });
+    res.status(200).json(actualizado);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

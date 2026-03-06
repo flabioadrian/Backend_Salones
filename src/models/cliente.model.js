@@ -56,3 +56,24 @@ export const enableCliente = async (id) => {
   }
   return { id, activo: 1 };
 };
+
+export const changePassword = async (id, body) => {
+  const { pass, new_pass } = body;
+  const [rows] = await db.query(
+    'SELECT id FROM cliente WHERE password = MD5(?) AND id = ?',
+    [pass, id]
+  );
+
+  if (rows.length === 0) {
+    throw new Error("La contraseña actual es incorrecta");
+  }
+  const [updateResult] = await db.query(
+    'UPDATE cliente SET password = MD5(?) WHERE id = ?',
+    [new_pass, id]
+  );
+
+  if (updateResult.affectedRows === 0) {
+    throw new Error("No se pudo actualizar la contraseña");
+  }
+  return { id, mensaje: "Actualización Exitosa" };
+};
