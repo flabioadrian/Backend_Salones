@@ -82,9 +82,8 @@ export const createReservaClient = async (req, res) => {
     // Validación
     const id = req.user.id;
     const data = req.body;
-    if (!id||!data.id_salon || !data.fecha || !data.hora_inicio || !data.hora_fin || !data.id_servicio)
+    if (!id||!data.id_salon || !data.fecha || !data.hora_inicio || !data.hora_fin)
       return res.status(400).json({msg: "Faltan datos obligatorios"});
-    
     const nuevo = await reservaModel.createReserva(data);
     res.status(201).json(nuevo); // Created
   } catch (error) {

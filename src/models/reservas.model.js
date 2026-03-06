@@ -22,10 +22,11 @@ export const getReservaClientbyID = async (id_cliente, id_reserva) => {
 };
 
 export const createReserva = async (data) => {
-  const { id_cliente, id_salon, fecha, hora_inicio, hora_fin, id_estado_pago, total_pagar, id_servicio } = data;
+  const { id_cliente, id_salon, fecha, hora_inicio, hora_fin, id_estado_pago, id_servicio } = data;
+  const servicioFinal = (id_servicio === 0 || !id_servicio) ? null : id_servicio;
   const [result] = await db.query(
     'CALL sp_crear_reserva(?, ?, ?, ?, ?, ?, @p_id, @p_msg); SELECT @p_id AS id, @p_msg AS mensaje;',
-    [id_cliente, id_salon, fecha, hora_inicio, hora_fin, id_servicio]
+    [id_cliente, id_salon, fecha, hora_inicio, hora_fin, servicioFinal]
   );
   const info = result[1][0]; 
 
