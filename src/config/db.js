@@ -10,7 +10,8 @@ const pool = createPool({
   database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
   waitForConnections: true,
-  connectionLimit: 10
+  connectionLimit: 10,
+  multipleStatements: true
 });
 
 export default pool;
