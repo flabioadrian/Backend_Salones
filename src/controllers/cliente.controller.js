@@ -28,7 +28,7 @@ export const getInfoClient = async (req, res) => {
   try {
     const id = req.user.id;
     
-    const clientes = await clienteModel.getInfoClient(id);
+    const clientes = await clienteModel.getClienteById(id);
 
     if(!clientes) return res.status(400).json({msg: "Cliente no encontrado"});
     res.status(200).json(clientes); // Éxito

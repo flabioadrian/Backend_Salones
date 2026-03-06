@@ -11,11 +11,6 @@ export const getClienteById = async (id) => {
   return rows[0];
 };
 
-export const getInfoClient = async (id) => {
-  const [rows] = await db.query('SELECT * FROM cliente WHERE id = ? AND activo = 1', [id]);
-  return rows[0];
-}
-
 export const createCliente = async (data) => {
   const { nombre, aPaterno, aMaterno, telefono, email, password, direccion } = data;
   const [result] = await db.query(
