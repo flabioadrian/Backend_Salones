@@ -15,7 +15,7 @@ router.post('/check-disponibilidad/:id', authRequired, ctrl.reservaOcupada);
 // 3. RUTAS DINÁMICAS POR ID
 router.get('/', authRequired, isAdmin, ctrl.getReservas); // Ver todas
 router.get('/:id', authRequired, isAdmin, ctrl.getReservaById);
-router.post('/', authRequired, ctrl.createReserva);
+router.post('/', authRequired, ctrl.createReservaClient);
 router.post('/creater/', authRequired, isAdmin, ctrl.createReserva);
 router.put('/:id', authRequired, ctrl.alterReserva);
 
