@@ -69,7 +69,14 @@ export const reservaOcupada = async (req, res) => {
 export const obtenerPresupuesto = async (req, res) => {
   try {
     const { id_sala, id_servicio } = req.body;
-    if (isNaN(id_sala) || isNaN(id_servicio)) return res.status(400).json({ msg: "Los IDs deben ser números válidos" });
+    if (isNaN(id_sala)) {
+      return res.status(400).json({ msg: "El ID de la sala debe ser un número válido" });
+    }
+    if (!id_servicio || id_servicio == 0) {
+      id_servicio = null;
+    } else if (isNaN(id_servicio)) {
+      return res.status(400).json({ msg: "El ID del servicio debe ser un número válido" });
+    }
     const total_calculado = await reservaModel.obtenerPresupuesto(id_sala, id_servicio);
     res.status(200).json({ total_calculado }); // Enviar como objeto JSON
   } catch (error) {
