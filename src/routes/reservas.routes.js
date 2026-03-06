@@ -16,6 +16,7 @@ router.post('/check-disponibilidad/:id', authRequired, ctrl.reservaOcupada);
 router.get('/', authRequired, isAdmin, ctrl.getReservas); // Ver todas
 router.get('/:id', authRequired, isAdmin, ctrl.getReservaById);
 router.post('/', authRequired, ctrl.createReserva);
+router.post('/creater/', authRequired, isAdmin, ctrl.createReserva);
 router.put('/:id', authRequired, ctrl.alterReserva);
 
 // 4. CAMBIO DE ESTADOS

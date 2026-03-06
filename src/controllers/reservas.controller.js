@@ -77,6 +77,21 @@ export const obtenerPresupuesto = async (req, res) => {
   }
 };
 
+export const createReservaClient = async (req, res) => {
+  try {
+    // Validación
+    const id = req.user.id;
+    const data = req.body;
+    if (!id||!data.id_salon || !data.fecha || !data.hora_inicio || !data.hora_fin || !data.id_servicio)
+      return res.status(400).json({msg: "Faltan datos obligatorios"});
+    
+    const nuevo = await reservaModel.createReserva(data);
+    res.status(201).json(nuevo); // Created
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export const createReserva = async (req, res) => {
   try {
     // Validación
