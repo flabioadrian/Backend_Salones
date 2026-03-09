@@ -110,14 +110,14 @@ export const cancelReserva = async (id, userSession) => {
 };
 
 async function validarUsuarioReserva(id, userSession) {
-  const { role, userId } = userSession;
+  const { role, id: userIdSession } = userSession; 
 
   if (role === 'client') {
     const [reserva] = await db.query('SELECT id_cliente FROM reserva WHERE id = ?', [id]);
     if (reserva.length === 0) {
       throw new Error("Reserva no encontrada");
     }
-    if (Number(reserva[0].id_cliente) !== Number(userId)) {
+    if (Number(reserva[0].id_cliente) !== Number(userIdSession)) {
       throw new Error("No tienes permiso para editar esta reserva");
     }
   }
