@@ -117,7 +117,7 @@ async function validarUsuarioReserva(id, userSession) {
     if (reserva.length === 0) {
       throw new Error("Reserva no encontrada");
     }
-    if (reserva[0].id_cliente !== userId) {
+    if (Number(reserva[0].id_cliente) !== Number(userId)) {
       throw new Error("No tienes permiso para editar esta reserva");
     }
   }
