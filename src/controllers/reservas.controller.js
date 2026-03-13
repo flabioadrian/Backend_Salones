@@ -54,7 +54,7 @@ export const getReservaClientbyID = async (req, res) => {
 
 export const reservaOcupada = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params; //reserva a excluir
     const data = req.body;
     if (isNaN(id)) return res.status(400).json({ msg: "El ID debe ser un número válido" });
     if (!data.id_salon || !data.fecha || !data.hora_inicio || !data.hora_fin)
