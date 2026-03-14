@@ -9,7 +9,12 @@ export const getAllClientes = async () => {
 
 export const getClienteById = async (id) => {
   const [rows] = await db.query('SELECT * FROM cliente WHERE id = ? AND activo = 1', [id]);
-  return rows[0];
+  if (rows.length === 0) return null;
+  const { password, ...datosSinPassword } = rows[0];
+  return { 
+    ...datosSinPassword, 
+    password: "******" 
+  };
 };
 
 export const createCliente = async (data) => {
