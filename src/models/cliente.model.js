@@ -1,4 +1,5 @@
 import db from '../config/db.js';
+import bcrypt from 'bcryptjs';
 
 export const getAllClientes = async () => {
   // Solo lógica de DB
@@ -13,11 +14,18 @@ export const getClienteById = async (id) => {
 
 export const createCliente = async (data) => {
   const { nombre, aPaterno, aMaterno, telefono, email, password, direccion } = data;
+  let passwordHasheado = await hashContrasenia(password);
   const [result] = await db.query(
     'INSERT INTO cliente (nombre, aPaterno, aMaterno, telefono, email, password, direccion) VALUES (?,?,?,?,?,?,?)',
-    [nombre,  aPaterno, aMaterno, telefono, email, password, direccion ]
+    [nombre,  aPaterno, aMaterno, telefono, email, passwordHasheado, direccion ]
   );
-  return { id: result.insertId, ...data };
+  return { id: result.insertId, nombre, aPaterno, aMaterno, telefono, email, direccion };
+};
+
+export const hashContrasenia = async (passwordPlano) => {
+    const saltRounds = 10; 
+    const passwordHasheado = await bcrypt.hash(passwordPlano, saltRounds);
+    return passwordHasheado;
 };
 
 export const alterCliente = async (id, data) => {
@@ -60,16 +68,20 @@ export const enableCliente = async (id) => {
 export const changePassword = async (id, body) => {
   const { pass, new_pass } = body;
   const [rows] = await db.query(
-    'SELECT id FROM cliente WHERE password = MD5(?) AND id = ?',
-    [pass, id]
+    'SELECT id, password FROM cliente WHERE id = ?',
+    [id]
   );
-
   if (rows.length === 0) {
+    throw new Error("Usuario no encontrado");
+  }
+  const passwordMatch = await bcrypt.compare(pass, rows[0].password);
+  if (!passwordMatch) {
     throw new Error("La contraseña actual es incorrecta");
   }
+  let newPasswordHasheada = await hashContrasenia(new_pass);
   const [updateResult] = await db.query(
-    'UPDATE cliente SET password = MD5(?) WHERE id = ?',
-    [new_pass, id]
+    'UPDATE cliente SET password = ? WHERE id = ?',
+    [newPasswordHasheada, id]
   );
 
   if (updateResult.affectedRows === 0) {
