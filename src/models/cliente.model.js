@@ -19,18 +19,30 @@ export const getClienteById = async (id) => {
 
 export const createCliente = async (data) => {
   const { nombre, aPaterno, aMaterno, telefono, email, password, direccion } = data;
+  const nombreF = formatNameExtra(nombre);
+  const aPaternoF = formatNameExtra(aPaterno);
+  const aMaternoF = formatNameExtra(aMaterno);
+  const emailF = email.trim().toLowerCase();
   let passwordHasheado = await hashContrasenia(password);
   const [result] = await db.query(
     'INSERT INTO cliente (nombre, aPaterno, aMaterno, telefono, email, password, direccion) VALUES (?,?,?,?,?,?,?)',
-    [nombre,  aPaterno, aMaterno, telefono, email, passwordHasheado, direccion ]
+    [nombreF, aPaternoF, aMaternoF, telefono, emailF, passwordHasheado, direccion]
   );
-  return { id: result.insertId, nombre, aPaterno, aMaterno, telefono, email, direccion };
+  return { id: result.insertId, nombre: nombreF, aPaterno: aPaternoF, aMaterno: aMaternoF, telefono, email: emailF, direccion };
 };
 
 export const hashContrasenia = async (passwordPlano) => {
     const saltRounds = 10; 
     const passwordHasheado = await bcrypt.hash(passwordPlano, saltRounds);
     return passwordHasheado;
+};
+
+export const formatNameExtra = (str) => {
+    return str
+        .trim()
+        .split(/\s+/)
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
 };
 
 export const alterCliente = async (id, data) => {
