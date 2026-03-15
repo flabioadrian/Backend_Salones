@@ -70,7 +70,7 @@ export const alterReserva = async (id, data, userSession) => {
      SET id_cliente = ?, 
          fecha = ?, 
          hora_inicio = ?, 
-         hora_fin = ?,
+         hora_fin = ?
      WHERE id = ?`,
     [
       id_cliente, 
