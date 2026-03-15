@@ -15,16 +15,14 @@ const allowedOrigins = [
     'http://localhost:5173',
     process.env.FRONTEND_URL,
     process.env.FRONTEND_PAGE_URL
-];
+].filter(Boolean);
 
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-        } else {
-        callback(new Error('Error de CORS: Origen no permitido por política'));
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
         }
+        return callback(new Error('CORS: Origen no permitido'));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'OPTIONS'],
