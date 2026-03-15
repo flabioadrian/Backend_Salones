@@ -9,7 +9,8 @@ export const getReservas = async (req, res) => {
       id_sala,
       sort,
       limit,
-      offset
+      offset,
+      fecha
     });
     res.status(200).json(resultado);
   } catch (error) {
