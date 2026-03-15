@@ -1,7 +1,7 @@
 import db from '../config/db.js';
 
 export const getAllReservas = async (filtros = {}) => {
-  const { email, id_sala, sort = 'DESC', limit = 10, offset = 0, fecha } = filtros;
+  const { email, id_sala, sort = 'DESC', limit = 10, offset = 0, fecha, fecha_inicio } = filtros;
   let sql = 'SELECT SQL_CALC_FOUND_ROWS * FROM vista_reservas_completas WHERE 1=1';
   const params = [];
   if (email) {
@@ -15,6 +15,10 @@ export const getAllReservas = async (filtros = {}) => {
   if (fecha) {
     sql += ' AND fecha = ?';
     params.push(fecha);
+  }
+  if(fecha_inicio){
+    sql += ' AND fecha >= ?';
+    params.push(fecha_inicio);
   }
   sql += ` ORDER BY fecha ${sort === 'ASC' ? 'ASC' : 'DESC'} LIMIT ? OFFSET ?`;
   params.push(parseInt(limit), parseInt(offset));
