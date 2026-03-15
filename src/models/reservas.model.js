@@ -70,16 +70,13 @@ export const alterReserva = async (id, data, userSession) => {
      SET id_cliente = ?, 
          fecha = ?, 
          hora_inicio = ?, 
-         hora_fin = ?, 
-         total_pagar = calcular_total_reserva(?, ?) 
+         hora_fin = ?,
      WHERE id = ?`,
     [
       id_cliente, 
       fecha, 
       hora_inicio, 
       hora_fin, 
-      id_salon,    // p_id_sala para la función
-      id_servicio, // p_id_servicio para la función
       id           // id para el WHERE
     ]
   );
