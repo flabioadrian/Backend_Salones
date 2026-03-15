@@ -19,13 +19,18 @@ const allowedOrigins = [
 
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-            return callback(null, true);
+        if (!origin) return callback(null, true);
+        const isAllowed = allowedOrigins.some(allowed => origin.startsWith(allowed));
+        
+        if (isAllowed) {
+            callback(null, true);
+        } else {
+            console.log("Origen bloqueado por CORS:", origin);
+            callback(new Error('No permitido por CORS'));
         }
-        return callback(new Error('CORS: Origen no permitido'));
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
