@@ -9,6 +9,7 @@ const router = Router();
 router.get('/', ctrl.getSalones);
 router.get('/all', authRequired, isAdmin, ctrl.getAllSalones);
 router.get('/:id', ctrl.getSalonById);
+router.get('/:id/admin', authRequired, isAdmin, ctrl.getSalonByIdAdmin);
 router.post('/', authRequired, isAdmin, ctrl.createSalon);
 router.put('/:id',authRequired, isAdmin, ctrl.alterSalon);
 router.patch('/:id/desactivar',authRequired, isAdmin, ctrl.disableSalon);

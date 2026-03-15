@@ -11,14 +11,15 @@ export const getAllSalones = async () => {
   return rows;
 };
 
-export const getSalonById = async (id, session) => {
-  if (session && session.role === 'admin') {
-    const [rows] = await db.query('SELECT * FROM salon WHERE id = ?', [id]);
-    return rows[0];
-  }
+export const getSalonById = async (id) => {
   const [rows] = await db.query('SELECT * FROM salon WHERE id = ? AND activo = 1', [id]);
   return rows[0];
 };
+
+export const getSalonByIdAdmin = async (id) => {
+  const [rows] = await db.query('SELECT * FROM salon WHERE id = ?', [id]);
+  return rows[0];
+}
 
 export const createSalon = async (data) => {
   const { nombre, capacidad, precio, imagenUrl, descripcion } = data;
