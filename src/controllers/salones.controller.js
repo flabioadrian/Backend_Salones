@@ -23,9 +23,10 @@ export const getAllSalones = async (req, res) => {
 export const getSalonById = async (req, res) => {
   try {
     const { id } = req.params;
+    const session = req.user;
     if (isNaN(id)) return res.status(400).json({ msg: "El ID debe ser un número válido" });
     
-    const salon = await salonModel.getSalonById(id);
+    const salon = await salonModel.getSalonById(id, session);
 
     if(!salon) return res.status(400).json({msg: "Salon no encontrado"});
     res.status(200).json(salon); // Éxito

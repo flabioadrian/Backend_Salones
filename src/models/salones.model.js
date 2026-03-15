@@ -11,7 +11,11 @@ export const getAllSalones = async () => {
   return rows;
 };
 
-export const getSalonById = async (id) => {
+export const getSalonById = async (id, session) => {
+  if (session && session.rol === 'admin') {
+    const [rows] = await db.query('SELECT * FROM salon WHERE id = ?', [id]);
+    return rows[0];
+  }
   const [rows] = await db.query('SELECT * FROM salon WHERE id = ? AND activo = 1', [id]);
   return rows[0];
 };
