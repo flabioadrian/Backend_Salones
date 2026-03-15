@@ -12,7 +12,7 @@ export const getAllSalones = async () => {
 };
 
 export const getSalonById = async (id, session) => {
-  if (session && session.rol === 'admin') {
+  if (session && session.role === 'admin') {
     const [rows] = await db.query('SELECT * FROM salon WHERE id = ?', [id]);
     return rows[0];
   }
