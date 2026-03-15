@@ -2,7 +2,7 @@ import * as reservaModel from '../models/reservas.model.js';
 
 export const getReservas = async (req, res) => {
   try {
-    const { email, id_sala, sort, page = 1, limit = 10 } = req.query;
+    const { email, id_sala, sort, page = 1, limit = 10, fecha} = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
     const resultado = await reservaModel.getAllReservas({
       email,
