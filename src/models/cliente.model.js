@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 
 export const getAllClientes = async () => {
   // Solo lógica de DB
-  const [rows] = await db.query('SELECT id, nombre, aPaterno, aMaterno, telefono, email, direccion FROM cliente WHERE activo = 1');
+  const [rows] = await db.query('SELECT id, nombre, aPaterno, aMaterno, telefono, email, activo, direccion FROM cliente');
   return rows;
 };
 
