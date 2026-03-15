@@ -61,7 +61,7 @@ export const obtenerPresupuesto = async (id_sala, id_servicio) => {
 };
 
 export const alterReserva = async (id, data, userSession) => {
-  const { id_cliente, id_salon, fecha, hora_inicio, hora_fin, id_estado_pago } = data;
+  const { id_cliente, id_salon, fecha, hora_inicio, hora_fin } = data;
 
   await validarUsuarioReserva(id, userSession);
 
@@ -71,7 +71,6 @@ export const alterReserva = async (id, data, userSession) => {
          fecha = ?, 
          hora_inicio = ?, 
          hora_fin = ?, 
-         id_estado_pago = ?,
          total_pagar = calcular_total_reserva(?, ?) 
      WHERE id = ?`,
     [
@@ -79,7 +78,6 @@ export const alterReserva = async (id, data, userSession) => {
       fecha, 
       hora_inicio, 
       hora_fin, 
-      id_estado_pago, 
       id_salon,    // p_id_sala para la función
       id_servicio, // p_id_servicio para la función
       id           // id para el WHERE
