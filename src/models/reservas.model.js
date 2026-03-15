@@ -61,7 +61,7 @@ export const obtenerPresupuesto = async (id_sala, id_servicio) => {
 };
 
 export const alterReserva = async (id, data, userSession) => {
-  const { id_cliente, id_salon, fecha, hora_inicio, hora_fin } = data;
+  const { id_cliente, fecha, hora_inicio, hora_fin } = data;
 
   await validarUsuarioReserva(id, userSession);
 
