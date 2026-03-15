@@ -47,14 +47,18 @@ export const formatNameExtra = (str) => {
 
 export const alterCliente = async (id, data) => {
   const { nombre,  aPaterno, aMaterno, telefono, email, password, direccion } = data;
+  const nombreF = formatNameExtra(nombre);
+  const aPaternoF = formatNameExtra(aPaterno);
+  const aMaternoF = formatNameExtra(aMaterno);
+  const emailF = email.trim().toLowerCase();
   const [result] = await db.query(
-    'UPDATE cliente SET nombre = ?, aPaterno = ?, aMaterno = ?, telefono = ?, email = ?, password = ?, direccion = ? WHERE id = ?',
-    [nombre, aPaterno, aMaterno, telefono, email, password, direccion, id]
+    'UPDATE cliente SET nombre = ?, aPaterno = ?, aMaterno = ?, telefono = ?, email = ?, direccion = ? WHERE id = ?',
+    [nombreF, aPaternoF, aMaternoF, telefono, emailF, direccion, id]
   );
   if (result.affectedRows === 0) {
     throw new Error("No se encontró el cliente para actualizar");
   }
-  return { id, ...data };
+  return { id, nombre: nombreF, aPaterno: aPaternoF, aMaterno: aMaternoF, telefono, email: emailF, direccion };
 };
 
 export const disableCliente = async (id) => {
