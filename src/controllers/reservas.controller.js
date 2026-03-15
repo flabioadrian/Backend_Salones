@@ -118,7 +118,7 @@ export const alterReserva = async (req, res) => {
     const data = req.body;
     const userSession = req.user; // Información del usuario autenticado
     if (isNaN(id)) return res.status(400).json({ msg: "El ID debe ser un número válido" });
-    if (!data.id_cliente ||!data.id_salon || !data.fecha || !data.hora_inicio || !data.hora_fin || !data.id_servicio)
+    if (!data.id_salon || !data.fecha || !data.hora_inicio || !data.hora_fin)
       return res.status(400).json({msg: "Faltan datos obligatorios"});
 
     const actualizado = await reservaModel.alterReserva(id, data, userSession);

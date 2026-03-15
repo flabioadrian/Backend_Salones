@@ -61,29 +61,25 @@ export const obtenerPresupuesto = async (id_sala, id_servicio) => {
 };
 
 export const alterReserva = async (id, data, userSession) => {
-  const { id_cliente, id_salon, fecha, hora_inicio, hora_fin, id_estado_pago, id_servicio } = data;
+  const { id_cliente, id_salon, fecha, hora_inicio, hora_fin, id_estado_pago } = data;
 
   await validarUsuarioReserva(id, userSession);
 
   const [result] = await db.query(
     `UPDATE reserva 
      SET id_cliente = ?, 
-         id_salon = ?, 
          fecha = ?, 
          hora_inicio = ?, 
          hora_fin = ?, 
-         id_estado_pago = ?, 
-         id_servicio = ?,
+         id_estado_pago = ?,
          total_pagar = calcular_total_reserva(?, ?) 
      WHERE id = ?`,
     [
       id_cliente, 
-      id_salon, 
       fecha, 
       hora_inicio, 
       hora_fin, 
       id_estado_pago, 
-      id_servicio, 
       id_salon,    // p_id_sala para la función
       id_servicio, // p_id_servicio para la función
       id           // id para el WHERE
