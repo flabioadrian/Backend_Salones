@@ -4,14 +4,14 @@ export const getReservas = async (req, res) => {
   try {
     const { email, id_sala, sort, page = 1, limit = 10 } = req.query;
     const offset = (parseInt(page) - 1) * parseInt(limit);
-    const reservas = await reservaModel.getAllReservas({
+    const resultado = await reservaModel.getAllReservas({
       email,
       id_sala,
       sort,
       limit,
       offset
     });
-    res.status(200).json(reservas);
+    res.status(200).json(resultado);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

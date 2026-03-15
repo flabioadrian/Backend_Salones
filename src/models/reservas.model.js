@@ -2,7 +2,7 @@ import db from '../config/db.js';
 
 export const getAllReservas = async (filtros = {}) => {
   const { email, id_sala, sort = 'DESC', limit = 10, offset = 0 } = filtros;
-  let sql = 'SELECT * FROM vista_reservas_completas WHERE 1=1';
+  let sql = 'SELECT SQL_CALC_FOUND_ROWS * FROM vista_reservas_completas WHERE 1=1';
   const params = [];
   if (email) {
     sql += ' AND email_cliente LIKE ?';
@@ -16,7 +16,13 @@ export const getAllReservas = async (filtros = {}) => {
   params.push(parseInt(limit), parseInt(offset));
 
   const [rows] = await db.query(sql, params);
-  return rows;
+  const [[{ total }]] = await db.query('SELECT FOUND_ROWS() as total');
+
+  return {
+    reservas: rows,
+    totalCount: total,
+    totalPages: Math.ceil(total / limit)
+  };
 };
 
 export const getReservaById = async (id) => {
