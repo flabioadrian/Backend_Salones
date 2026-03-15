@@ -12,7 +12,7 @@ export const getAllReservas = async (filtros = {}) => {
     sql += ' AND id_sala = ?';
     params.push(id_sala);
   }
-  if (fecha) {
+  if (fecha && fecha !== "") {
     sql += ' AND fecha = ?';
     params.push(fecha);
   }
