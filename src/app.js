@@ -15,23 +15,25 @@ const allowedOrigins = [
     'http://localhost:5173',
     process.env.FRONTEND_URL,
     process.env.FRONTEND_PAGE_URL
-].filter(Boolean);
+].map(url => url?.replace(/\/$/, ""));
 
 app.use(cors({
     origin: function (origin, callback) {
         if (!origin) return callback(null, true);
-        const isAllowed = allowedOrigins.some(allowed => origin.startsWith(allowed));
         
+        const cleanOrigin = origin.replace(/\/$/, "");
+        const isAllowed = allowedOrigins.includes(cleanOrigin);
+
         if (isAllowed) {
             callback(null, true);
         } else {
-            console.log("Origen bloqueado por CORS:", origin);
-            callback(new Error('No permitido por CORS'));
+            console.error(`Bloqueado por CORS. Origen recibido: "${origin}"`);
+            callback(new Error('No permitido por política de CORS'));
         }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
 
 app.options('*', cors());
