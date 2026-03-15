@@ -1,8 +1,13 @@
 import db from '../config/db.js';
 
-export const getAllSalones = async () => {
+export const getSalonesActivos = async () => {
   // Solo lógica de DB
   const [rows] = await db.query('SELECT * FROM salon WHERE activo = 1');
+  return rows;
+};
+
+export const getAllSalones = async () => {
+  const [rows] = await db.query('SELECT * FROM salon');
   return rows;
 };
 

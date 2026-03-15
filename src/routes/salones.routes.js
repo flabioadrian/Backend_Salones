@@ -7,6 +7,7 @@ const router = Router();
 
 // Definición de endpoints
 router.get('/', ctrl.getSalones);
+router.get('/all', authRequired, isAdmin, ctrl.getAllSalones);
 router.get('/:id', ctrl.getSalonById);
 router.post('/', authRequired, isAdmin, ctrl.createSalon);
 router.put('/:id',authRequired, isAdmin, ctrl.alterSalon);

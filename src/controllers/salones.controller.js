@@ -2,6 +2,16 @@ import * as salonModel from '../models/salones.model.js';
 
 export const getSalones = async (req, res) => {
   try {
+    const salones = await salonModel.getSalonesActivos();
+    
+    res.status(200).json(salones); // Éxito
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getAllSalones = async (req, res) => {
+  try {
     const salones = await salonModel.getAllSalones();
     
     res.status(200).json(salones); // Éxito
