@@ -11,10 +11,23 @@ import uploadRoutes from './routes/upload.routes.js';
 
 const app = express();
 
+const allowedOrigins = [
+    'http://localhost:5173',
+    process.env.FRONTEND_URL,
+    process.env.FRONTEND_PAGE_URL
+];
+
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173' || process.env.FRONTEND_PAGE_URL,
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+        } else {
+        callback(new Error('Error de CORS: Origen no permitido por política'));
+        }
+    },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH' ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
