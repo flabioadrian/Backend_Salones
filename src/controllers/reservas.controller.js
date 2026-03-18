@@ -98,6 +98,14 @@ export const createReservaClient = async (req, res) => {
     if (!id_usuario || !data.id_salon || !data.fecha || !data.hora_inicio || !data.hora_fin) {
       return res.status(400).json({ msg: "Faltan datos obligatorios" });
     }
+    const fechaReservacion = new Date(data.fecha);
+    const fechaMinima = new Date();
+    fechaMinima.setDate(fechaMinima.getDate() + 3);
+    if (fechaReservacion < fechaMinima) {
+      return res.status(400).json({
+        msg: "La reservación necesita mínimo 3 días de anticipación para realizarse"
+      });
+    }
     const dataConCliente = { ...data, id_cliente: id_usuario };
 
     const nuevo = await reservaModel.createReserva(dataConCliente);
@@ -113,7 +121,14 @@ export const createReserva = async (req, res) => {
     const data = req.body;
     if (!data.id_cliente ||!data.id_salon || !data.fecha || !data.hora_inicio || !data.hora_fin || !data.id_servicio)
       return res.status(400).json({msg: "Faltan datos obligatorios"});
-    
+    const fechaReservacion = new Date(data.fecha);
+    const fechaMinima = new Date();
+    fechaMinima.setDate(fechaMinima.getDate() + 3);
+    if (fechaReservacion < fechaMinima) {
+      return res.status(400).json({
+        msg: "La reservación necesita mínimo 3 días de anticipación para realizarse"
+      });
+    }
     const nuevo = await reservaModel.createReserva(data);
     res.status(201).json(nuevo); // Created
   } catch (error) {
