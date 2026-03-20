@@ -14,7 +14,11 @@ export const getInfoReservaClient = async (id_reserva) => {
 };
 
 export const actualizarEstadoPago = async (payment, paymentId) => {
-    console.log(payment);
+    const [existente] = await db.query('SELECT id FROM pagos WHERE mp_payment_id = ?', [paymentId]);
+    if (existente.length > 0) {
+        console.log(`El pago ${paymentId} ya estaba registrado. Ignorando duplicado.`);
+        return; 
+    }
     const prefId = payment.preference_id || payment.order?.id || 'N/A';
     const params = [
         payment.external_reference, // p_id_reserva
