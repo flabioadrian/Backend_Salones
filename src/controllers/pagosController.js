@@ -1,6 +1,6 @@
 import { Preference } from 'mercadopago';
 import { client } from '../config/mercadopago.js';
-import pagoModel from '../models/pagosModel.js';
+import * as pagoModel from '../models/pagosModel.js';
 
 export const crearPreferencia = async (req, res) => {
     try {

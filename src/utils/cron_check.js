@@ -28,3 +28,24 @@ export const iniciarCronCancelaciones = () => {
         }
     });
 };
+
+export const ejecutarBarridoCancelaciones = async (req, res) => {
+    try {
+        logger.info('Ejecutando barrido manual de cancelaciones...');
+        const sql = `
+            UPDATE reserva r
+            INNER JOIN auditoria_reservas a ON r.id = a.id_reserva
+            SET r.id_estado_pago = 3
+            WHERE r.id_estado_pago = 2 
+            AND a.fecha_cambio < NOW() - INTERVAL 8 HOUR
+        `;
+        const [result] = await db.query(sql);
+        res.json({
+            mensaje: "Barrido completado",
+            cancelados: result.affectedRows
+        });
+    } catch (error) {
+        logger.error('Error en el barrido:', error);
+        res.status(500).json({ error: "Fallo el proceso de limpieza" });
+    }
+};
