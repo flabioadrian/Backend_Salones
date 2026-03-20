@@ -1,4 +1,4 @@
-import { Preference } from 'mercadopago';
+import { Preference, Payment } from 'mercadopago';
 import { client } from '../config/mercadopago.js';
 import * as pagoModel from '../models/pagosModel.js';
 
