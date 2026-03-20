@@ -15,10 +15,11 @@ export const getInfoReservaClient = async (id_reserva) => {
 
 export const actualizarEstadoPago = async (payment, paymentId) => {
     console.log(payment);
+    const prefId = payment.preference_id || payment.order?.id || 'N/A';
     const params = [
         payment.external_reference, // p_id_reserva
         paymentId,                  // p_mp_payment_id
-        payment.preference_id,      // p_mp_preference_id
+        prefId,                     // p_mp_preference_id
         payment.payment_method_id,  // p_metodo_pago
         payment.transaction_amount   // p_monto_pagado
     ];
