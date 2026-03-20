@@ -30,6 +30,10 @@ export const iniciarCronCancelaciones = () => {
 };
 
 export const ejecutarBarridoCancelaciones = async (req, res) => {
+    const authHeader = req.headers['authorization'];
+    if (process.env.NODE_ENV === 'production' && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+        return res.status(401).json({ error: "No autorizado" });
+    }
     try {
         logger.info('Ejecutando barrido manual de cancelaciones...');
         const sql = `

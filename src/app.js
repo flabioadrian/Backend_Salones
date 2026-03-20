@@ -10,6 +10,7 @@ import reservasRoutes from './routes/reservas.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
 import { iniciarCronCancelaciones } from './utils/cron_check.js';
 import pagosRoutes from './routes/pagosRoutes.js';
+import mantenimientoRoutes from './routes/mantenimiento.js';
 
 const app = express();
 
@@ -50,10 +51,11 @@ app.use('/api/cliente', clientesRoutes);
 app.use('/api/', loginRoutes);
 app.use('/api/reservas', reservasRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/mantenimiento', mantenimientoRoutes);
 
 export default app;
 
-iniciarCronCancelaciones();
+//iniciarCronCancelaciones();
 if (process.env.NODE_ENV !== 'production') {
     app.listen(3000, () => console.log('Servidor corriendo en el puerto 3000'));
 }

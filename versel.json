@@ -2,5 +2,11 @@
   "version": 2,
   "rewrites": [
     { "source": "/(.*)", "destination": "src/app.js" }
+  ],
+  "crons": [
+    {
+      "path": "/api/mantenimiento/barrido",
+      "schedule": "0 */8 * * *"
+    }
   ]
 }
