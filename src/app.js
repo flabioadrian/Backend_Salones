@@ -8,6 +8,8 @@ import adminRoutes from './routes/admin.routes.js';
 import loginRoutes from './routes/loginProcess.routes.js';
 import reservasRoutes from './routes/reservas.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
+import { iniciarCronCancelaciones } from './utils/cron_check.js';
+import pagosRoutes from './routes/pagosRoutes.js';
 
 const app = express();
 
@@ -40,6 +42,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Montar las rutas
+app.use('/api/pagos', pagosRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/salones', salonesRoutes);
 app.use('/api/servicios', serviciosRoutes);
@@ -50,6 +53,7 @@ app.use('/api/upload', uploadRoutes);
 
 export default app;
 
+iniciarCronCancelaciones();
 if (process.env.NODE_ENV !== 'production') {
     app.listen(3000, () => console.log('Servidor corriendo en el puerto 3000'));
 }
