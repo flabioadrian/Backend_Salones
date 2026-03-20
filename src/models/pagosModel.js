@@ -14,6 +14,7 @@ export const getInfoReservaClient = async (id_reserva) => {
 };
 
 export const actualizarEstadoPago = async (payment, paymentId) => {
+    console.log(payment);
     const params = [
         payment.external_reference, // p_id_reserva
         paymentId,                  // p_mp_payment_id
