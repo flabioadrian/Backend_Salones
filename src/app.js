@@ -11,6 +11,7 @@ import uploadRoutes from './routes/upload.routes.js';
 import { iniciarCronCancelaciones } from './utils/cron_check.js';
 import pagosRoutes from './routes/pagosRoutes.js';
 import mantenimientoRoutes from './routes/mantenimiento.js';
+import analyticsRoutes from './routes/analytics.routes.js';
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use('/api/', loginRoutes);
 app.use('/api/reservas', reservasRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/mantenimiento', mantenimientoRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 export default app;
 
