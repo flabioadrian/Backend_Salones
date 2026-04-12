@@ -151,6 +151,13 @@ export const cancelReservaConReembolso = async (id, userSession) => {
                         payment_id: pago.mp_payment_id,
                         body: { amount: montoReembolso }
                     });
+                    const nuevoEstadoMP = porcentajeReembolso === 1 ? 'refunded' : 'partially_refunded';
+                        await connection.query(
+                            `UPDATE pago_detalles 
+                             SET estado_mp = ?, monto_reembolsado = ? 
+                             WHERE id_reserva = ?`,
+                            [nuevoEstadoMP, montoReembolso, id]
+                        );
                 } catch (mpError) {
                     console.error("Error Mercado Pago:", mpError);
                     throw new Error("Error crítico al procesar la devolución en Mercado Pago.");
