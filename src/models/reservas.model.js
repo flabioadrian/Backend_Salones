@@ -1,4 +1,8 @@
 import db from '../config/db.js';
+import { client } from '../config/mercadopago.js';
+import { PaymentRefund } from 'mercadopago';
+import * as pagoModel from './pagosModel.js';
+const refundClient = new PaymentRefund(client);
 
 export const getAllReservas = async (filtros = {}) => {
   const { email, id_sala, sort = 'DESC', limit = 10, offset = 0, fecha, fecha_inicio } = filtros;
@@ -114,17 +118,53 @@ export const alterReserva = async (id, data, userSession) => {
   return { id, ...data };
 };
 
-export const cancelReserva = async (id, userSession) => {
-  await validarUsuarioReserva(id, userSession);
+export const cancelReservaConReembolso = async (id, userSession) => {
+    await validarUsuarioReserva(id, userSession);
 
-  const [result] = await db.query(
-    'UPDATE reserva SET id_estado_pago = 3 WHERE id = ?',
-    [id]
-  );
-  if (result.affectedRows === 0) {
-    throw new Error("No se encontró la reserva para cancelar");
-  }
-  return { id, activo: 0 };
+    const reserva = await getReservaById(id);
+    if (!reserva) throw new Error("Reserva no encontrada");
+
+    if (reserva.id_estado_pago === 3) {
+        throw new Error("Esta reserva ya se encuentra cancelada.");
+    }
+
+    let porcentajeReembolso = 0;
+    if (reserva.id_estado_pago === 1) {
+        const pago = await pagoModel.getDetallesPagoPorReserva(id);
+        
+        if (pago && pago.mp_payment_id) {
+            const fechaReserva = new Date(reserva.fecha);
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
+            fechaReserva.setHours(0, 0, 0, 0);
+
+            const diferenciaDias = Math.ceil((fechaReserva - hoy) / (1000 * 60 * 60 * 24));
+
+            if (diferenciaDias >= 7) porcentajeReembolso = 1;
+            else if (diferenciaDias > 3) porcentajeReembolso = 0.5;
+            else porcentajeReembolso = 0;
+
+            if (porcentajeReembolso > 0) {
+                try {
+                    const montoReembolso = parseFloat(pago.monto_pagado) * porcentajeReembolso;
+                    await refundClient.create({
+                        payment_id: pago.mp_payment_id,
+                        body: { amount: montoReembolso }
+                    });
+                } catch (mpError) {
+                    console.error("Error Mercado Pago:", mpError);
+                    throw new Error("Error crítico al procesar la devolución en Mercado Pago.");
+                }
+            }
+        }
+    } 
+    await db.query('UPDATE reserva SET id_estado_pago = 3 WHERE id = ?', [id]);
+
+    return { 
+        id, 
+        estadoAnterior: reserva.id_estado_pago,
+        reembolso: porcentajeReembolso 
+    };
 };
 
 async function validarUsuarioReserva(id, userSession) {

@@ -1,4 +1,5 @@
 import * as reservaModel from '../models/reservas.model.js';
+import * as pagoModel from '../models/pagosModel.js';
 
 export const getReservas = async (req, res) => {
   try {
@@ -155,11 +156,16 @@ export const alterReserva = async (req, res) => {
 export const disableReserva = async (req, res) => {
   try {
     const { id } = req.params;
-    const userSession = req.user; // Información del usuario autenticado
-    if (isNaN(id)) return res.status(400).json({ msg: "El ID debe ser un número válido" });
+    const userSession = req.user; 
 
-    const actualizado = await reservaModel.cancelReserva(id, userSession);
-    res.status(200).json(actualizado);
+    if (isNaN(id)) return res.status(400).json({ msg: "El ID debe ser un número válido" });
+    const resultado = await reservaModel.cancelReservaConReembolso(id, userSession);
+    
+    res.status(200).json({
+      msg: "Reserva cancelada",
+      reembolsoAplicado: `${resultado.reembolso * 100}%`,
+      data: resultado
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

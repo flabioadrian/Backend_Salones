@@ -33,3 +33,9 @@ export const actualizarEstadoPago = async (payment, paymentId) => {
     
     console.log(`Procedimiento ejecutado para reserva: ${payment.external_reference}`);
 };
+
+export const getDetallesPagoPorReserva = async (id_reserva) => {
+    const sql = `SELECT mp_payment_id, monto_pagado FROM pago_detalles WHERE id_reserva = ?`;
+    const [rows] = await db.query(sql, [id_reserva]);
+    return rows.length > 0 ? rows[0] : null;
+};
