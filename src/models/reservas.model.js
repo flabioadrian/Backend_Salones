@@ -152,7 +152,7 @@ export const cancelReservaConReembolso = async (id, userSession) => {
                         body: { amount: montoReembolso }
                     });
                     const nuevoEstadoMP = porcentajeReembolso === 1 ? 'refunded' : 'partially_refunded';
-                        await connection.query(
+                        await db.query(
                             `UPDATE pago_detalles 
                              SET estado_mp = ?, monto_reembolsado = ? 
                              WHERE id_reserva = ?`,
