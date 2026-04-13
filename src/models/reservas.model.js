@@ -122,68 +122,47 @@ export const cancelReservaConReembolso = async (id, userSession) => {
     await validarUsuarioReserva(id, userSession);
 
     const reserva = await getReservaById(id);
-    if (!reserva) throw new Error("Reserva no encontrada");
-
-    if (reserva.id_estado_pago === 3) {
-        throw new Error("Esta reserva ya se encuentra cancelada.");
+    if (!reserva || reserva.id_estado_pago === 3 || reserva.fecha < new Date()) {
+        throw new Error("Reserva no válida o ya cancelada");
     }
 
     let porcentajeReembolso = 0;
     let montoReembolso = 0;
+    let nuevoEstadoMP = 'cancelled';
 
-    if (reserva.id_estado_pago === 1) {
-        const pago = await pagoModel.getDetallesPagoPorReserva(id);
-        console.log("Datos del pago recuperados:", pago);
-        
-        if (pago && pago.mp_payment_id) {
-            const fechaReserva = new Date(reserva.fecha);
-            const hoy = new Date();
-            hoy.setHours(0, 0, 0, 0);
-            fechaReserva.setHours(0, 0, 0, 0);
+    const pago = await pagoModel.getDetallesPagoPorReserva(id);
 
-            const diferenciaDias = Math.ceil((fechaReserva - hoy) / (1000 * 60 * 60 * 24));
+    if (pago && pago.mp_payment_id) {
+        const fechaReserva = new Date(reserva.fecha);
+        const hoy = new Date();
+        hoy.setHours(0,0,0,0);
+        fechaReserva.setHours(0,0,0,0);
+        const diferenciaDias = Math.ceil((fechaReserva - hoy) / (1000 * 60 * 60 * 24));
 
-            if (diferenciaDias >= 7) porcentajeReembolso = 1;
-            else if (diferenciaDias > 3) porcentajeReembolso = 0.5;
-            else porcentajeReembolso = 0;
+        if (diferenciaDias >= 7) porcentajeReembolso = 1;
+        else if (diferenciaDias > 3) porcentajeReembolso = 0.5;
 
-            // Log de control para Vercel
-            console.log(`Días: ${diferenciaDias}, Porcentaje: ${porcentajeReembolso}, Monto Pago: ${pago.monto_pagado}`);
-
-            if (porcentajeReembolso > 0) {
-                try {
-                    montoReembolso = Number(pago.monto_pagado) * porcentajeReembolso;
-                    
-                    await refundClient.create({
-                        payment_id: String(pago.mp_payment_id),
-                        body: { amount: montoReembolso }
-                    });
-
-                    const nuevoEstadoMP = porcentajeReembolso === 1 ? 'refunded' : 'partially_refunded';
-                    await db.query(
-                        `UPDATE pago_detalles 
-                         SET estado_mp = ?, monto_reembolsado = ? 
-                         WHERE id_reserva = ?`,
-                        [nuevoEstadoMP, montoReembolso, id]
-                    );
-                } catch (mpError) {
-                    console.error("Error detallado de Mercado Pago:", mpError.message || mpError);
-                    throw new Error("Error crítico al procesar la devolución en Mercado Pago.");
-                }
-            } else {
-                await db.query(
-                    `UPDATE pago_detalles SET estado_mp = 'cancelled_no_refund' WHERE id_reserva = ?`,
-                    [id]
-                );
-            }
+        if (porcentajeReembolso > 0) {
+            montoReembolso = Number(pago.monto_pagado) * porcentajeReembolso;
+            await refundClient.create({
+                payment_id: String(pago.mp_payment_id),
+                body: { amount: montoReembolso }
+            });
+            
+            nuevoEstadoMP = porcentajeReembolso === 1 ? 'refunded' : 'partially_refunded';
+        } else {
+            nuevoEstadoMP = 'cancelled_no_refund';
         }
-    } 
-    await db.query('UPDATE reserva SET id_estado_pago = 3 WHERE id = ?', [id]);
+    }
+    await db.query(
+        'CALL sp_cancelar_reserva_con_reembolso(?, ?, ?)',
+        [id, montoReembolso, nuevoEstadoMP]
+    );
 
     return { 
         id, 
-        estadoAnterior: reserva.id_estado_pago,
-        reembolso: porcentajeReembolso 
+        reembolso: porcentajeReembolso, 
+        estadoAnterior: reserva.id_estado_pago 
     };
 };
 
