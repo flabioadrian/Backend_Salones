@@ -129,6 +129,8 @@ export const cancelReservaConReembolso = async (id, userSession) => {
     }
 
     let porcentajeReembolso = 0;
+    let montoReembolso = 0;
+
     if (reserva.id_estado_pago === 1) {
         const pago = await pagoModel.getDetallesPagoPorReserva(id);
         
@@ -144,24 +146,34 @@ export const cancelReservaConReembolso = async (id, userSession) => {
             else if (diferenciaDias > 3) porcentajeReembolso = 0.5;
             else porcentajeReembolso = 0;
 
+            // Log de control para Vercel
+            console.log(`Días: ${diferenciaDias}, Porcentaje: ${porcentajeReembolso}, Monto Pago: ${pago.monto_pagado}`);
+
             if (porcentajeReembolso > 0) {
                 try {
-                    const montoReembolso = parseFloat(pago.monto_pagado) * porcentajeReembolso;
+                    montoReembolso = Number(pago.monto_pagado) * porcentajeReembolso;
+                    
                     await refundClient.create({
-                        payment_id: pago.mp_payment_id,
+                        payment_id: String(pago.mp_payment_id),
                         body: { amount: montoReembolso }
                     });
+
                     const nuevoEstadoMP = porcentajeReembolso === 1 ? 'refunded' : 'partially_refunded';
-                        await db.query(
-                            `UPDATE pago_detalles 
-                             SET estado_mp = ?, monto_reembolsado = ? 
-                             WHERE id_reserva = ?`,
-                            [nuevoEstadoMP, montoReembolso, id]
-                        );
+                    await db.query(
+                        `UPDATE pago_detalles 
+                         SET estado_mp = ?, monto_reembolsado = ? 
+                         WHERE id_reserva = ?`,
+                        [nuevoEstadoMP, montoReembolso, id]
+                    );
                 } catch (mpError) {
-                    console.error("Error Mercado Pago:", mpError);
+                    console.error("Error detallado de Mercado Pago:", mpError.message || mpError);
                     throw new Error("Error crítico al procesar la devolución en Mercado Pago.");
                 }
+            } else {
+                await db.query(
+                    `UPDATE pago_detalles SET estado_mp = 'cancelled_no_refund' WHERE id_reserva = ?`,
+                    [id]
+                );
             }
         }
     } 
@@ -170,7 +182,8 @@ export const cancelReservaConReembolso = async (id, userSession) => {
     return { 
         id, 
         estadoAnterior: reserva.id_estado_pago,
-        reembolso: porcentajeReembolso 
+        reembolsoAplicado: montoReembolso,
+        porcentaje: porcentajeReembolso 
     };
 };
 
