@@ -133,6 +133,7 @@ export const cancelReservaConReembolso = async (id, userSession) => {
 
     if (reserva.id_estado_pago === 1) {
         const pago = await pagoModel.getDetallesPagoPorReserva(id);
+        console.log("Datos del pago recuperados:", pago);
         
         if (pago && pago.mp_payment_id) {
             const fechaReserva = new Date(reserva.fecha);
@@ -182,8 +183,7 @@ export const cancelReservaConReembolso = async (id, userSession) => {
     return { 
         id, 
         estadoAnterior: reserva.id_estado_pago,
-        reembolsoAplicado: montoReembolso,
-        porcentaje: porcentajeReembolso 
+        reembolso: porcentajeReembolso 
     };
 };
 
