@@ -39,3 +39,30 @@ export const getDetallesPagoPorReserva = async (id_reserva) => {
     const [rows] = await db.query(sql, [id_reserva]);
     return rows.length > 0 ? rows[0] : null;
 };
+
+export const procesarReembolsoMP = async (paymentId, monto) => {
+    try {
+        const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}/refunds`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN.trim()}`,
+                'Content-Type': 'application/json',
+                'X-Idempotency-Key': `refund-${paymentId}-${Date.now()}`
+            },
+            body: JSON.stringify({
+                amount: parseFloat(monto.toFixed(2))
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error("Error API Mercado Pago:", data);
+            throw new Error(data.message || "Error en el reembolso");
+        }
+
+        return data;
+    } catch (err) {
+        throw new Error(`Fallo en la comunicación con MP: ${err.message}`);
+    }
+};

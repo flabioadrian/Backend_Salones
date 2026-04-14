@@ -126,44 +126,31 @@ export const cancelReservaConReembolso = async (id, userSession) => {
         throw new Error("Reserva no válida o ya cancelada");
     }
 
-    let porcentajeReembolso = 0;
     let montoReembolso = 0;
-    let nuevoEstadoMP = 'cancelled';
+    let nuevoEstadoMP = 'cancelled_no_refund';
+    let porcentaje = 0;
 
     const pago = await pagoModel.getDetallesPagoPorReserva(id);
 
-    if (pago && pago.mp_payment_id) {
+    if (pago?.mp_payment_id) {
         const fechaReserva = new Date(reserva.fecha);
         const hoy = new Date();
         hoy.setHours(0,0,0,0);
         fechaReserva.setHours(0,0,0,0);
-        const diferenciaDias = Math.ceil((fechaReserva - hoy) / (1000 * 60 * 60 * 24));
+        const dias = Math.ceil((fechaReserva - hoy) / (1000 * 60 * 60 * 24));
+        
+        if(dias >= 7) porcentaje = 1;
+        else if(dias > 3) porcentaje = 0.5;
+        else porcentaje = 0;
 
-        if (diferenciaDias >= 7) porcentajeReembolso = 1;
-        else if (diferenciaDias > 3) porcentajeReembolso = 0.5;
-
-        if (porcentajeReembolso > 0) {
-            montoReembolso = Number(pago.monto_pagado) * porcentajeReembolso;
-            await refundClient.create({
-                payment_id: String(pago.mp_payment_id),
-                body: { amount: montoReembolso }
-            });
-            
-            nuevoEstadoMP = porcentajeReembolso === 1 ? 'refunded' : 'partially_refunded';
-        } else {
-            nuevoEstadoMP = 'cancelled_no_refund';
+        if (porcentaje > 0) {
+            montoReembolso = Number(pago.monto_pagado) * porcentaje;
+            await pagoModel.procesarReembolsoMP(pago.mp_payment_id, montoReembolso);            
+            nuevoEstadoMP = porcentaje === 1 ? 'refunded' : 'partially_refunded';
         }
     }
-    await db.query(
-        'CALL sp_cancelar_reserva_con_reembolso(?, ?, ?)',
-        [id, montoReembolso, nuevoEstadoMP]
-    );
-
-    return { 
-        id, 
-        reembolso: porcentajeReembolso, 
-        estadoAnterior: reserva.id_estado_pago 
-    };
+    await db.query('CALL sp_cancelar_reserva_con_reembolso(?, ?, ?)', [id, montoReembolso, nuevoEstadoMP]);
+    return { id, reembolso: porcentaje };
 };
 
 async function validarUsuarioReserva(id, userSession) {

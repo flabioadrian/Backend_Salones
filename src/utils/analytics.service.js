@@ -1,5 +1,5 @@
 
-
+/*
 const ajustarExponencial = (data) => {
   const n = data.length;
   const puntos = data.map((item, idx) => ({ t: idx, y: item.cantidad_reservas }));
@@ -35,10 +35,54 @@ const ajustarExponencial = (data) => {
 
   return { k, a, r2, proyecciones };
 };
+*/
 
-/**
- * Función principal que recibe los datos del modelo y devuelve el análisis completo.
- */
+const ajustarExponencial = (data) => {
+  const n = data.length;
+  if (n < 2) {
+    throw new Error('Se necesitan al menos 2 puntos para el ajuste exponencial');
+  }
+
+  // Primer y último punto
+  const yFirst = data[0].cantidad_reservas;
+  const yLast  = data[n - 1].cantidad_reservas;
+  
+  // Evitar log(<=0)
+  const safeYFirst = Math.max(yFirst, 1e-6);
+  const safeYLast  = Math.max(yLast, 1e-6);
+  
+  // Tiempo total = n-1
+  const tLast = n - 1;
+  
+  // k = ln(y_last / y_first) / tLast
+  const k = Math.log(safeYLast / safeYFirst) / tLast;
+  // a = y_first (valor inicial en t=0)
+  const a = safeYFirst;
+  
+  // Predicciones para todos los puntos (para calcular R²)
+  const yHat = data.map((_, idx) => a * Math.exp(k * idx));
+  
+  // Cálculo de R² usando todos los puntos reales vs predicciones
+  const yActual = data.map(p => p.cantidad_reservas);
+  const yMean = yActual.reduce((s, y) => s + y, 0) / n;
+  const ssRes = yActual.reduce((s, y, i) => s + (y - yHat[i]) ** 2, 0);
+  const ssTot = yActual.reduce((s, y) => s + (y - yMean) ** 2, 0);
+  const r2 = 1 - ssRes / ssTot;
+  
+  // Proyección a 6 meses futuros
+  const proyecciones = [];
+  for (let i = 1; i <= 6; i++) {
+    const tFuturo = (n - 1) + i;
+    const yPred = a * Math.exp(k * tFuturo);
+    proyecciones.push({
+      mes_offset: i,
+      cantidad_estimada: Math.round(yPred),
+    });
+  }
+  
+  return { k, a, r2, proyecciones };
+};
+
 export const procesarAnalisisReservas = (dataRaw) => {
   // 1. Limpieza/Transformación básica
   const datosModelo = dataRaw.map(item => ({
