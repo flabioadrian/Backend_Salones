@@ -69,9 +69,9 @@ const ajustarExponencial = (data) => {
   const ssTot = yActual.reduce((s, y) => s + (y - yMean) ** 2, 0);
   const r2 = 1 - ssRes / ssTot;
   
-  // Proyección a 6 meses futuros
+  // Proyección a 2 meses futuros
   const proyecciones = [];
-  for (let i = 1; i <= 6; i++) {
+  for (let i = 1; i <= 2; i++) {
     const tFuturo = (n - 1) + i;
     const yPred = a * Math.exp(k * tFuturo);
     proyecciones.push({
