@@ -155,6 +155,10 @@ export const cancelReservaConReembolso = async (id, userSession) => {
 
 export async function cancelarReserva(id, userSession) {
   validarUsuarioReserva(id, userSession);
+  const reserva = await getReservaById(id);
+  if (!reserva || reserva.id_estado_pago === 3 || reserva.fecha < new Date()) {
+    throw new Error("Reserva no válida o ya cancelada");
+  }
   const [result] = await db.query(
     'UPDATE reserva SET id_estado_pago = 3 WHERE id = ?',
     [id]  );
