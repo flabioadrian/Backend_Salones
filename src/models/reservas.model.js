@@ -95,6 +95,9 @@ export const alterReserva = async (id, data, userSession) => {
   const { id_cliente, fecha, hora_inicio, hora_fin } = data;
 
   await validarUsuarioReserva(id, userSession);
+  if (!(await reservaEditable(id))) {
+    throw new Error("Reserva no válida o ya cancelada");
+  }
 
   const [result] = await db.query(
     `UPDATE reserva 
@@ -118,11 +121,23 @@ export const alterReserva = async (id, data, userSession) => {
   return { id, ...data };
 };
 
+export const reservaEditable = async (id) => {
+  const reserva = await getReservaById(id);
+  if (!reserva) return false;
+  const noEstaCancelada = reserva.id_estado_pago !== 3;
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const fechaReserva = new Date(reserva.fecha);
+  fechaReserva.setHours(0, 0, 0, 0); 
+
+  return (noEstaCancelada && fechaReserva >= hoy); // Retorna true solo si existe, no está cancelada y no es pasada
+}
+
 export const cancelReservaConReembolso = async (id, userSession) => {
     await validarUsuarioReserva(id, userSession);
 
     const reserva = await getReservaById(id);
-    if (!reserva || reserva.id_estado_pago === 3 || reserva.fecha < new Date()) {
+    if (!(await reservaEditable(id))) {
         throw new Error("Reserva no válida o ya cancelada");
     }
 
@@ -156,7 +171,7 @@ export const cancelReservaConReembolso = async (id, userSession) => {
 export async function cancelarReserva(id, userSession) {
   validarUsuarioReserva(id, userSession);
   const reserva = await getReservaById(id);
-  if (!reserva || reserva.id_estado_pago === 3 || reserva.fecha < new Date()) {
+  if (!(await reservaEditable(id))) {
     throw new Error("Reserva no válida o ya cancelada");
   }
   const [result] = await db.query(
