@@ -153,7 +153,7 @@ export const cancelReservaConReembolso = async (id, userSession) => {
     return { id, reembolso: porcentaje };
 };
 
-async function cancelarReserva(id, userSession) {
+export async function cancelarReserva(id, userSession) {
   validarUsuarioReserva(id, userSession);
   const [result] = await db.query(
     'UPDATE reserva SET id_estado_pago = 3 WHERE id = ?',
@@ -161,6 +161,7 @@ async function cancelarReserva(id, userSession) {
   if (result.affectedRows === 0) {
     throw new Error("No se encontró la reserva para cancelar");
   }
+  return { id, activo: 0 , reembolso: 0, mensaje: "Reserva cancelada sin reembolso"};
 }
 
 async function validarUsuarioReserva(id, userSession) {
