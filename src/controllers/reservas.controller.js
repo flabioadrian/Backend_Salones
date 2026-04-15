@@ -159,7 +159,7 @@ export const disableReserva = async (req, res) => {
     const userSession = req.user; 
 
     if (isNaN(id)) return res.status(400).json({ msg: "El ID debe ser un número válido" });
-    const resultado = await reservaModel.cancelReservaConReembolso(id, userSession);
+    const resultado = await reservaModel.cancelarReserva(id, userSession);
     
     res.status(200).json({
       msg: "Reserva cancelada",
