@@ -1,5 +1,6 @@
 import { error } from 'node:console';
 import db from '../config/db.js'
+import { refundClient } from '../config/mercadopago.js';
 
 export const getInfoReservaClient = async (id_reserva) => {
     const sql = `SELECT * FROM vista_reservas_completas WHERE id = ?`;
@@ -42,27 +43,18 @@ export const getDetallesPagoPorReserva = async (id_reserva) => {
 
 export const procesarReembolsoMP = async (paymentId, monto) => {
     try {
-        const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}/refunds`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN.trim()}`,
-                'Content-Type': 'application/json',
-                'X-Idempotency-Key': `refund-${paymentId}-${Date.now()}`
-            },
-            body: JSON.stringify({
+        const response = await refundClient.create({ 
+            payment_id: paymentId, 
+            body: {
                 amount: parseFloat(monto.toFixed(2))
-            })
+            } 
+        }, { 
+            idempotencyKey: `refund-${paymentId}-${Date.now()}` 
         });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-            console.error("Error API Mercado Pago:", data);
-            throw new Error(data.message || "Error en el reembolso");
-        }
-
-        return data;
-    } catch (err) {
-        throw new Error(`Fallo en la comunicación con MP: ${err.message}`);
+        return response;
+    } catch (error) {
+        console.error("Error detallado:", error);
+        throw new Error(`Fallo en el reembolso: ${error.message}`);
     }
 };

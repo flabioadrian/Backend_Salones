@@ -9,4 +9,4 @@ export const client = new MercadoPagoConfig({
     }
 });
 
-const refundClient = new PaymentRefund(client);
+export const refundClient = new PaymentRefund(client);
