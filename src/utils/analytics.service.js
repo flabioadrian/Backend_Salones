@@ -62,12 +62,7 @@ const ajustarExponencial = (data) => {
   // Predicciones para todos los puntos (para calcular R²)
   const yHat = data.map((_, idx) => a * Math.exp(k * idx));
   
-  // Cálculo de R² usando todos los puntos reales vs predicciones
-  const yActual = data.map(p => p.cantidad_reservas);
-  const yMean = yActual.reduce((s, y) => s + y, 0) / n;
-  const ssRes = yActual.reduce((s, y, i) => s + (y - yHat[i]) ** 2, 0);
-  const ssTot = yActual.reduce((s, y) => s + (y - yMean) ** 2, 0);
-  const r2 = 1 - ssRes / ssTot;
+ 
   
   // Proyección a 2 meses futuros
   const proyecciones = [];
@@ -80,7 +75,7 @@ const ajustarExponencial = (data) => {
     });
   }
   
-  return { k, a, r2, proyecciones };
+  return { k, a, proyecciones };
 };
 
 export const procesarAnalisisReservas = (dataRaw) => {
@@ -92,7 +87,7 @@ export const procesarAnalisisReservas = (dataRaw) => {
   }));
 
   // 2. Ejecutar cálculos matemáticos
-  const { k, a, r2, proyecciones } = ajustarExponencial(datosModelo);
+  const { k, a, proyecciones } = ajustarExponencial(datosModelo);
 
   // 3. Clasificar temporadas
   const maxReservas = Math.max(...datosModelo.map(m => m.cantidad_reservas));
@@ -109,7 +104,6 @@ export const procesarAnalisisReservas = (dataRaw) => {
   return {
     tasa_crecimiento_k: k,
     coeficiente_a: a,
-    r2,
     interpretacion: k > 0 ? 'Crecimiento general' : (k < 0 ? 'Decrecimiento general' : 'Estable'),
     temporadas,
     proyecciones
