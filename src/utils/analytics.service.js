@@ -43,43 +43,45 @@ const ajustarExponencial = (data) => {
     throw new Error('Se necesitan al menos 2 puntos para el ajuste exponencial');
   }
 
-  // Primer y último punto
-  const yFirst = data[0].cantidad_reservas;
-  const yLast  = data[n - 1].cantidad_reservas;
-  
-  // Evitar log(<=0)
-  const safeYFirst = Math.max(yFirst, 1e-6);
-  const safeYLast  = Math.max(yLast, 1e-6);
-  
-  // Tiempo total = n-1
-  const tLast = n - 1;
-  
-  // k = ln(y_last / y_first) / tLast
-  const k = Math.log(safeYLast / safeYFirst) / tLast;
-  // a = y_first (valor inicial en t=0)
-  const a = safeYFirst;
-  
-  // Predicciones para todos los puntos (para calcular R²)
+  // 1. Definir 'a' como el primer punto (mes 1, t=0)
+  const a = Math.max(data[0].cantidad_reservas, 1e-6);
+
+  // 2. Calcular la suma y el promedio de 'y' (reservas)
+  const sumaY = data.reduce((s, p) => s + p.cantidad_reservas, 0);
+  const promedioY = sumaY / n;
+
+  // 3. Calcular el promedio de 't' (tiempos)
+  // Si los meses son 0, 1, 2... n-1, la suma es (n-1)*n / 2
+  const sumaT = data.reduce((s, _, idx) => s + idx, 0);
+  const promedioT = sumaT / n; 
+
+  // 4. Calcular k usando los promedios
+  // k = ln(promedioY / a) / promedioT
+  const safePromedioY = Math.max(promedioY, 1e-6);
+  const k = Math.log(safePromedioY / a) / promedioT;
+
+  // 5. Predicciones para R²
   const yHat = data.map((_, idx) => a * Math.exp(k * idx));
-  
-  // Cálculo de R² usando todos los puntos reales vs predicciones
   const yActual = data.map(p => p.cantidad_reservas);
-  const yMean = yActual.reduce((s, y) => s + y, 0) / n;
+  const yMean = sumaY / n;
+  
   const ssRes = yActual.reduce((s, y, i) => s + (y - yHat[i]) ** 2, 0);
   const ssTot = yActual.reduce((s, y) => s + (y - yMean) ** 2, 0);
   const r2 = 1 - ssRes / ssTot;
-  
-  // Proyección a 2 meses futuros
+
+  // 6. Proyección a futuro (Enero y Febrero 2025)
+  // Si n=12 (meses de 2024), t=12 es Enero y t=13 es Febrero
   const proyecciones = [];
-  for (let i = 1; i <= 2; i++) {
-    const tFuturo = (n - 1) + i;
+  for (let i = 0; i < 2; i++) {
+    const tFuturo = n + i; 
     const yPred = a * Math.exp(k * tFuturo);
     proyecciones.push({
-      mes_offset: i,
+      mes_offset: i + 1,
+      t_valor: tFuturo,
       cantidad_estimada: Math.round(yPred),
     });
   }
-  
+
   return { k, a, r2, proyecciones };
 };
 
