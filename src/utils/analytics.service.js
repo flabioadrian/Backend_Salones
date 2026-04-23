@@ -43,34 +43,21 @@ const ajustarExponencial = (data) => {
     throw new Error('Se necesitan al menos 2 puntos para el ajuste exponencial');
   }
 
-  // 1. Definir 'a' como el primer punto (mes 1, t=0)
+  // 1. Valor inicial (a)
   const a = Math.max(data[0].cantidad_reservas, 1e-6);
 
-  // 2. Calcular la suma y el promedio de 'y' (reservas)
+  // 2. Cálculos de tendencia central (Suma y Promedios)
   const sumaY = data.reduce((s, p) => s + p.cantidad_reservas, 0);
   const promedioY = sumaY / n;
 
-  // 3. Calcular el promedio de 't' (tiempos)
-  // Si los meses son 0, 1, 2... n-1, la suma es (n-1)*n / 2
   const sumaT = data.reduce((s, _, idx) => s + idx, 0);
   const promedioT = sumaT / n; 
 
-  // 4. Calcular k usando los promedios
-  // k = ln(promedioY / a) / promedioT
+  // 3. Cálculo de la tasa k
   const safePromedioY = Math.max(promedioY, 1e-6);
   const k = Math.log(safePromedioY / a) / promedioT;
 
-  // 5. Predicciones para R²
-  const yHat = data.map((_, idx) => a * Math.exp(k * idx));
-  
-  // Cálculo de R² usando todos los puntos reales vs predicciones
-  const yActual = data.map(p => p.cantidad_reservas);
-  const yMean = yActual.reduce((s, y) => s + y, 0) / n;
-  const ssRes = yActual.reduce((s, y, i) => s + (y - yHat[i]) ** 2, 0);
-  const ssTot = yActual.reduce((s, y) => s + (y - yMean) ** 2, 0);
-  const r2 = 1 - ssRes / ssTot;
-  
-  // Proyección a 2 meses futuros
+  // 4. Proyección a futuro
   const proyecciones = [];
   for (let i = 0; i < 2; i++) {
     const tFuturo = n + i; 
@@ -82,21 +69,28 @@ const ajustarExponencial = (data) => {
     });
   }
   
-  return { k, a, r2, proyecciones };
+  return { 
+    k, 
+    a, 
+    detalles_calculo: {
+      total_reservas_periodo: sumaY,
+      promedio_reservas_y: parseFloat(promedioY.toFixed(2)),
+      promedio_tiempo_t: parseFloat(promedioT.toFixed(2)),
+      puntos_analizados: n
+    },
+    proyecciones 
+  };
 };
 
 export const procesarAnalisisReservas = (dataRaw) => {
-  // 1. Limpieza/Transformación básica
   const datosModelo = dataRaw.map(item => ({
     mes: item.mes,
     cantidad_reservas: item.cantidad_reservas,
     total_ingresos: parseFloat(item.total_ingresos)
   }));
 
-  // 2. Ejecutar cálculos matemáticos
-  const { k, a, proyecciones } = ajustarExponencial(datosModelo);
+  const { k, a, detalles_calculo, proyecciones } = ajustarExponencial(datosModelo);
 
-  // 3. Clasificar temporadas
   const maxReservas = Math.max(...datosModelo.map(m => m.cantidad_reservas));
   const minReservas = Math.min(...datosModelo.map(m => m.cantidad_reservas));
 
@@ -107,10 +101,10 @@ export const procesarAnalisisReservas = (dataRaw) => {
     return { ...item, tipo };
   });
 
-  // 4. Retornar todo el paquete de información
   return {
     tasa_crecimiento_k: k,
     coeficiente_a: a,
+    detalles_matematicos: detalles_calculo,
     interpretacion: k > 0 ? 'Crecimiento general' : (k < 0 ? 'Decrecimiento general' : 'Estable'),
     temporadas,
     proyecciones
