@@ -51,7 +51,7 @@ const ajustarExponencial = (data) => {
   const promedioY = sumaY / n;
 
   const sumaT = data.reduce((s, _, idx) => s + idx, 0);
-  const promedioT = sumaT / n; 
+  const promedioT = Math.round(sumaT / n); 
 
   // 3. Cálculo de la tasa k
   const safePromedioY = Math.max(promedioY, 1e-6);
