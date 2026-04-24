@@ -65,7 +65,7 @@ const ajustarExponencial = (data) => {
     proyecciones.push({
       mes_offset: i + 1,
       t_valor: tFuturo,
-      cantidad_estimada: Math.floor(yPred),
+      cantidad_estimada: Math.round(yPred),
     });
   }
   
