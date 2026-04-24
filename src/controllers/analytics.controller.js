@@ -3,7 +3,7 @@ import * as analyticsService from '../utils/analytics.service.js';
 
 export const getAnalisisTemporadas = async (req, res) => {
   try {
-    const { anio_inicio = 2025, anio_fin = 2025 } = req.query;
+    const { anio_inicio = 2023, anio_fin = 2024 } = req.query;
     const dataPorMes = await analyticsModel.getReservasPorMes(anio_inicio, anio_fin);
     if (dataPorMes.length < 2) {
       return res.status(400).json({ msg: 'No hay suficientes datos.' });
