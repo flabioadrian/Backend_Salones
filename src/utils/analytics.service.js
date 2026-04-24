@@ -55,7 +55,7 @@ const ajustarExponencial = (data) => {
 
   // 3. Cálculo de la tasa k
   const safePromedioY = Math.max(promedioY, 1e-6);
-  const k = parseFloat((Math.log(safePromedioY / a) / promedioT).toFixed(4));
+  const k = parseFloat((Math.log(safePromedioY / a) / promedioT).toFixed(3));
 
   // 4. Proyección a futuro
   const proyecciones = [];
